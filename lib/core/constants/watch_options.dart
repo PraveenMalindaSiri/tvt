@@ -1,10 +1,10 @@
 class WatchOptions {
   const WatchOptions._();
 
-  // v2 keeps richer title data and watch history. The v1 key is retained so
-  // existing installs can migrate without losing the user's current list.
-  static const String storageKey = 'simpleWatchTracker.items.v2';
-  static const String historyStorageKey = 'simpleWatchTracker.history.v2';
+  // v3 stores a compact per-title model. Older keys are retained for one-time
+  // migration so existing installs keep their library.
+  static const String storageKey = 'simpleWatchTracker.items.v3';
+  static const String legacyV2StorageKey = 'simpleWatchTracker.items.v2';
   static const String legacyStorageKey = 'simpleWatchTracker.items.v1';
 
   static const String allFilter = 'All';
@@ -34,13 +34,13 @@ class WatchOptions {
     'name',
     'category',
     'status',
+    'seasonEpisodeCounts',
     'currentSeason',
     'currentEpisode',
-    'runtimeMinutes',
     'watchNext',
     'addedAt',
-    'updatedAt',
     'lastWatchedAt',
-    'watchedAt',
+    'completedAt',
+    'updatedAt',
   ];
 }

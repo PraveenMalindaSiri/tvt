@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import '../../../core/constants/watch_options.dart';
 import '../models/backup_data.dart';
 import '../models/watch_filter.dart';
-import '../models/watch_history_entry.dart';
 import '../models/watch_item.dart';
 import '../services/backup_service.dart';
 import '../services/watch_storage_service.dart';
@@ -20,61 +19,41 @@ class WatchTrackerController extends ChangeNotifier {
   final BackupService _backupService;
 
   List<WatchItem> _items = <WatchItem>[];
-  List<WatchHistoryEntry> _history = <WatchHistoryEntry>[];
   List<WatchItem> _itemsView = const <WatchItem>[];
   List<WatchItem> _visibleItems = const <WatchItem>[];
   List<WatchItem> _continueWatching = const <WatchItem>[];
   List<WatchItem> _watchNextItems = const <WatchItem>[];
-  List<WatchHistoryEntry> _recentHistory = const <WatchHistoryEntry>[];
+  List<WatchItem> _recentlyCompleted = const <WatchItem>[];
   Map<String, int> _statusCounts = const <String, int>{};
+  Map<String, int> _categoryCounts = const <String, int>{};
   WatchFilter _filter = const WatchFilter();
   bool _isLoading = true;
 
   List<WatchItem> get items => _itemsView;
-  List<WatchHistoryEntry> get history => List<WatchHistoryEntry>.unmodifiable(_history);
   WatchFilter get filter => _filter;
   bool get isLoading => _isLoading;
   List<WatchItem> get visibleItems => _visibleItems;
   List<WatchItem> get continueWatching => _continueWatching;
   List<WatchItem> get watchNextItems => _watchNextItems;
-  List<WatchHistoryEntry> get recentHistory => _recentHistory;
+  List<WatchItem> get recentlyCompleted => _recentlyCompleted;
 
-  int get episodesWatched => _history
-      .where((WatchHistoryEntry entry) => entry.isEpisode)
-      .length;
-
-  int get watchedMovies => _items
-      .where((WatchItem item) =>
-          item.isMovie && item.status == WatchOptions.watchedStatus)
-      .length;
-
-  int get watchTimeMinutes => _history.fold<int>(
-        0,
-        (int total, WatchHistoryEntry entry) =>
-            total + (entry.runtimeMinutes ?? 0),
-      );
+  int countByStatus(String status) => _statusCounts[status] ?? 0;
+  int countByCategory(String category) => _categoryCounts[category] ?? 0;
 
   Future<void> init() async {
     _setLoading(true);
-
     try {
       _items = await _storageService.loadItems();
-      _history = await _storageService.loadHistory();
-
       final bool defaultBackupHandled =
           await _storageService.isDefaultBackupHandled();
 
       if (!defaultBackupHandled) {
-        if (_items.isEmpty && _history.isEmpty) {
+        if (_items.isEmpty) {
           await loadDefaultBackup();
         } else {
-          // Existing users keep their current data. The bundled backup should
-          // never overwrite an already-used installation automatically.
           await _storageService.markDefaultBackupHandled();
         }
       }
-
-      _sortHistory();
       _rebuildDerivedState();
     } finally {
       _setLoading(false);
@@ -82,16 +61,11 @@ class WatchTrackerController extends ChangeNotifier {
   }
 
   Future<int> loadDefaultBackup() async {
-    final String text =
-        await rootBundle.loadString('assets/data/backup.json');
+    final String text = await rootBundle.loadString('assets/data/backup.json');
     final BackupData imported = _backupService.parseBackupJson(text);
-
     _items = imported.items;
-    _history = imported.history;
-    _sortHistory();
-    await _saveAllAndNotify();
+    await _saveItemsAndNotify();
     await _storageService.markDefaultBackupHandled();
-
     return imported.items.length;
   }
 
@@ -102,19 +76,12 @@ class WatchTrackerController extends ChangeNotifier {
     return null;
   }
 
-  List<WatchHistoryEntry> historyForItem(String itemId) {
-    return _history
-        .where((WatchHistoryEntry entry) => entry.itemId == itemId)
-        .toList(growable: false);
-  }
-
-  int countByStatus(String status) => _statusCounts[status] ?? 0;
-
   Future<void> addItem({
     required String name,
     required String category,
     String status = WatchOptions.defaultStatus,
     bool watchNext = false,
+    List<int> seasonEpisodeCounts = const <int>[],
   }) async {
     final String cleanName = name.trim();
     if (cleanName.isEmpty) return;
@@ -124,226 +91,275 @@ class WatchTrackerController extends ChangeNotifier {
       category: category,
       status: status,
       watchNext: watchNext,
+      seasonEpisodeCounts: seasonEpisodeCounts,
     );
-
     _items = <WatchItem>[item, ..._items];
     await _saveItemsAndNotify();
   }
 
-  Future<void> updateItem({
+  Future<String?> updateItem({
     required String id,
     required String name,
     required String category,
     required String status,
-    int? runtimeMinutes,
-    bool clearRuntimeMinutes = false,
+    List<int>? seasonEpisodeCounts,
   }) async {
+    final WatchItem? old = findItem(id);
     final String cleanName = name.trim();
-    if (cleanName.isEmpty) return;
+    if (old == null || cleanName.isEmpty) return 'Title name is required.';
 
-    final DateTime now = DateTime.now();
-    _items = _items.map((WatchItem item) {
-      if (item.id != id) return item;
-      return item.copyWith(
+    final bool movie = category == 'Movie';
+    List<int> counts = movie
+        ? const <int>[]
+        : (seasonEpisodeCounts ?? old.seasonEpisodeCounts);
+    if (!movie && counts.isEmpty) counts = const <int>[0];
+
+    int season = movie ? 1 : old.currentSeason;
+    int episode = movie ? 0 : old.currentEpisode;
+    if (!movie) {
+      if (season > counts.length) season = counts.length;
+      if (season < 1) season = 1;
+      final int total = counts[season - 1];
+      if (total > 0 && episode > total) {
+        return 'Season $season has $total episodes, but current progress is episode $episode.';
+      }
+    }
+
+    final DateTime today = WatchItem.today();
+    DateTime? completedAt = old.completedAt;
+    if (status == WatchOptions.watchedStatus) {
+      completedAt ??= today;
+      if (!movie && counts.isNotEmpty) {
+        season = counts.length;
+        final int finalTotal = counts.last;
+        if (finalTotal > 0) episode = finalTotal;
+      }
+    } else {
+      completedAt = null;
+    }
+
+    _replaceItem(
+      old.copyWith(
         name: cleanName,
         category: category,
         status: status,
-        watchNext: status == WatchOptions.watchedStatus ? false : item.watchNext,
-        runtimeMinutes: runtimeMinutes,
-        clearRuntimeMinutes: clearRuntimeMinutes,
-        updatedAt: now,
-      );
-    }).toList();
-
+        seasonEpisodeCounts: counts,
+        currentSeason: season,
+        currentEpisode: episode,
+        watchNext: status == WatchOptions.watchedStatus ? false : old.watchNext,
+        completedAt: completedAt,
+        clearCompletedAt: status != WatchOptions.watchedStatus,
+        updatedAt: today,
+      ),
+    );
     await _saveItemsAndNotify();
+    return null;
   }
 
   Future<void> setStatus(String id, String status) async {
-    final DateTime now = DateTime.now();
-    _items = _items.map((WatchItem item) {
-      if (item.id != id) return item;
-      return item.copyWith(
+    final WatchItem? item = findItem(id);
+    if (item == null) return;
+    final DateTime today = WatchItem.today();
+
+    int season = item.currentSeason;
+    int episode = item.currentEpisode;
+    if (status == WatchOptions.watchedStatus && item.isEpisodic && item.seasonCount > 0) {
+      season = item.seasonCount;
+      final int finalTotal = item.episodeCountForSeason(season);
+      if (finalTotal > 0) episode = finalTotal;
+    }
+
+    _replaceItem(
+      item.copyWith(
         status: status,
+        currentSeason: season,
+        currentEpisode: episode,
         watchNext: status == WatchOptions.watchedStatus ? false : item.watchNext,
-        updatedAt: now,
-      );
-    }).toList();
+        completedAt: status == WatchOptions.watchedStatus ? today : item.completedAt,
+        clearCompletedAt: status != WatchOptions.watchedStatus,
+        updatedAt: today,
+      ),
+    );
     await _saveItemsAndNotify();
   }
 
   Future<void> toggleWatchNext(String id) async {
-    final WatchItem? selected = findItem(id);
-    if (selected == null || selected.status == WatchOptions.watchedStatus) return;
-    final DateTime now = DateTime.now();
-    _items = _items.map((WatchItem item) {
-      if (item.id != id) return item;
-      return item.copyWith(
+    final WatchItem? item = findItem(id);
+    if (item == null || item.status == WatchOptions.watchedStatus) return;
+    _replaceItem(
+      item.copyWith(
         watchNext: !item.watchNext,
-        updatedAt: now,
-      );
-    }).toList();
+        updatedAt: WatchItem.today(),
+      ),
+    );
     await _saveItemsAndNotify();
   }
 
-  Future<void> setProgress({
+  Future<String?> setSeasonPlan(String id, List<int> counts) async {
+    final WatchItem? item = findItem(id);
+    if (item == null || !item.isEpisodic) return 'Series/Anime only.';
+    if (counts.isEmpty) return 'Add at least one season.';
+
+    final List<int> safe = counts.map((int value) => value < 0 ? 0 : value).toList();
+    if (item.currentSeason > safe.length) {
+      return 'You currently have progress in season ${item.currentSeason}. Keep at least that many seasons.';
+    }
+    final int currentTotal = safe[item.currentSeason - 1];
+    if (currentTotal > 0 && item.currentEpisode > currentTotal) {
+      return 'Season ${item.currentSeason} cannot have fewer than ${item.currentEpisode} episodes because that is your current progress.';
+    }
+
+    _replaceItem(
+      item.copyWith(
+        seasonEpisodeCounts: safe,
+        updatedAt: WatchItem.today(),
+      ),
+    );
+    await _saveItemsAndNotify();
+    return null;
+  }
+
+  Future<String?> setProgress({
     required String id,
     required int season,
     required int episode,
   }) async {
-    final DateTime now = DateTime.now();
-    _items = _items.map((WatchItem item) {
-      if (item.id != id) return item;
-      return item.copyWith(
+    final WatchItem? item = findItem(id);
+    if (item == null || !item.isEpisodic) return 'Series/Anime only.';
+    if (season < 1 || season > item.seasonCount) {
+      return 'Season must be between 1 and ${item.seasonCount}.';
+    }
+    if (episode < 0) return 'Episode cannot be negative.';
+    final int total = item.episodeCountForSeason(season);
+    if (total > 0 && episode > total) {
+      return 'Season $season only has $total episodes.';
+    }
+
+    final DateTime today = WatchItem.today();
+    final bool completed = season == item.seasonCount && total > 0 && episode == total;
+    _replaceItem(
+      item.copyWith(
         currentSeason: season,
         currentEpisode: episode,
-        status: episode > 0 ? WatchOptions.watchingStatus : item.status,
-        updatedAt: now,
-      );
-    }).toList();
+        status: completed
+            ? WatchOptions.watchedStatus
+            : (episode > 0 ? WatchOptions.watchingStatus : item.status),
+        lastWatchedAt: episode > 0 ? today : item.lastWatchedAt,
+        completedAt: completed ? today : item.completedAt,
+        clearCompletedAt: !completed && item.status == WatchOptions.watchedStatus,
+        watchNext: completed ? false : item.watchNext,
+        updatedAt: today,
+      ),
+    );
     await _saveItemsAndNotify();
+    return null;
   }
 
-  Future<void> incrementEpisode(String id) async {
+  Future<String> incrementEpisode(String id) async {
     final WatchItem? item = findItem(id);
-    if (item == null || !item.isEpisodic) return;
+    if (item == null || !item.isEpisodic) return 'No episodic title found.';
+    if (item.status == WatchOptions.watchedStatus) return 'Already marked Watched.';
 
-    final DateTime now = DateTime.now();
-    final int nextEpisode = item.currentEpisode + 1;
+    int season = item.currentSeason;
+    int episode = item.currentEpisode;
+    final int total = item.episodeCountForSeason(season);
 
-    final WatchHistoryEntry entry = WatchHistoryEntry.episode(
-      itemId: item.id,
-      itemName: item.name,
-      category: item.category,
-      season: item.currentSeason,
-      episode: nextEpisode,
-      previousStatus: item.status,
-      previousSeason: item.currentSeason,
-      previousEpisode: item.currentEpisode,
-      runtimeMinutes: item.runtimeMinutes,
-      watchedAt: now,
+    if (total > 0 && episode >= total) {
+      if (season >= item.seasonCount) {
+        await setStatus(id, WatchOptions.watchedStatus);
+        return 'Series completed.';
+      }
+      season += 1;
+      episode = 1;
+    } else {
+      episode += 1;
+    }
+
+    final int newTotal = item.episodeCountForSeason(season);
+    if (newTotal > 0 && episode > newTotal) {
+      return 'Season $season only has $newTotal episodes.';
+    }
+
+    final DateTime today = WatchItem.today();
+    final bool completed = season == item.seasonCount && newTotal > 0 && episode == newTotal;
+    _replaceItem(
+      item.copyWith(
+        currentSeason: season,
+        currentEpisode: episode,
+        status: completed ? WatchOptions.watchedStatus : WatchOptions.watchingStatus,
+        lastWatchedAt: today,
+        completedAt: completed ? today : item.completedAt,
+        clearCompletedAt: !completed && item.completedAt != null,
+        watchNext: completed ? false : item.watchNext,
+        updatedAt: today,
+      ),
     );
+    await _saveItemsAndNotify();
+    return completed ? 'Final episode saved. Series completed.' : 'Progress saved: S$season E$episode.';
+  }
 
-    _history = <WatchHistoryEntry>[entry, ..._history];
-    _items = _items.map((WatchItem current) {
-      if (current.id != id) return current;
-      return current.copyWith(
-        currentEpisode: nextEpisode,
-        status: WatchOptions.watchingStatus,
-        lastWatchedAt: now,
-        updatedAt: now,
-      );
-    }).toList();
+  Future<String> completeSeason(String id) async {
+    final WatchItem? item = findItem(id);
+    if (item == null || !item.isEpisodic) return 'No episodic title found.';
+    final int total = item.currentSeasonEpisodeCount;
+    if (total <= 0) {
+      return 'Set the episode count for season ${item.currentSeason} first.';
+    }
 
-    await _saveAllAndNotify();
+    final DateTime today = WatchItem.today();
+    final bool finalSeason = item.currentSeason == item.seasonCount;
+    _replaceItem(
+      item.copyWith(
+        currentEpisode: total,
+        status: finalSeason ? WatchOptions.watchedStatus : WatchOptions.watchingStatus,
+        lastWatchedAt: today,
+        completedAt: finalSeason ? today : item.completedAt,
+        clearCompletedAt: !finalSeason && item.completedAt != null,
+        watchNext: finalSeason ? false : item.watchNext,
+        updatedAt: today,
+      ),
+    );
+    await _saveItemsAndNotify();
+    return finalSeason
+        ? 'Season ${item.currentSeason} completed. Series marked Watched.'
+        : 'Season ${item.currentSeason} completed.';
   }
 
   Future<void> markMovieWatched(String id) async {
     final WatchItem? item = findItem(id);
     if (item == null || !item.isMovie) return;
-
-    final DateTime now = DateTime.now();
-    final WatchHistoryEntry entry = WatchHistoryEntry.movie(
-      itemId: item.id,
-      itemName: item.name,
-      category: item.category,
-      previousStatus: item.status,
-      runtimeMinutes: item.runtimeMinutes,
-      watchedAt: now,
-    );
-
-    _history = <WatchHistoryEntry>[entry, ..._history];
-    _items = _items.map((WatchItem current) {
-      if (current.id != id) return current;
-      return current.copyWith(
+    final DateTime today = WatchItem.today();
+    _replaceItem(
+      item.copyWith(
         status: WatchOptions.watchedStatus,
-        watchedAt: now,
-        lastWatchedAt: now,
-        updatedAt: now,
+        completedAt: today,
+        lastWatchedAt: today,
+        updatedAt: today,
         watchNext: false,
-      );
-    }).toList();
-
-    await _saveAllAndNotify();
-  }
-
-  Future<bool> undoLastWatch(String itemId) async {
-    WatchHistoryEntry? latest;
-    for (final WatchHistoryEntry entry in _history) {
-      if (entry.itemId == itemId) {
-        latest = entry;
-        break;
-      }
-    }
-    if (latest == null) return false;
-
-    final WatchHistoryEntry entry = latest;
-    _history = _history
-        .where((WatchHistoryEntry current) => current.id != entry.id)
-        .toList();
-
-    WatchHistoryEntry? previousRecord;
-    for (final WatchHistoryEntry current in _history) {
-      if (current.itemId == itemId) {
-        previousRecord = current;
-        break;
-      }
-    }
-
-    final DateTime now = DateTime.now();
-    _items = _items.map((WatchItem item) {
-      if (item.id != itemId) return item;
-
-      if (entry.isEpisode) {
-        return item.copyWith(
-          status: entry.previousStatus,
-          currentSeason: entry.previousSeason ?? item.currentSeason,
-          currentEpisode: entry.previousEpisode ?? item.currentEpisode,
-          lastWatchedAt: previousRecord?.watchedAt,
-          clearLastWatchedAt: previousRecord == null,
-          updatedAt: now,
-        );
-      }
-
-      return item.copyWith(
-        status: entry.previousStatus,
-        lastWatchedAt: previousRecord?.watchedAt,
-        clearLastWatchedAt: previousRecord == null,
-        watchedAt: previousRecord?.isMovie == true ? previousRecord?.watchedAt : null,
-        clearWatchedAt: previousRecord?.isMovie != true,
-        updatedAt: now,
-      );
-    }).toList();
-
-    await _saveAllAndNotify();
-    return true;
+      ),
+    );
+    await _saveItemsAndNotify();
   }
 
   Future<void> deleteItem(String id) async {
     _items = _items.where((WatchItem item) => item.id != id).toList();
-    // Keep history as a diary even if a title is removed from the library.
     await _saveItemsAndNotify();
   }
 
   Future<void> deleteAll() async {
     _items = <WatchItem>[];
-    _history = <WatchHistoryEntry>[];
-    await _saveAllAndNotify();
+    await _saveItemsAndNotify();
   }
 
-  String exportBackupJson() {
-    return _backupService.createBackupJson(_items, _history);
-  }
+  String exportBackupJson() => _backupService.createBackupJson(_items);
 
-  int countBackupItems(String text) {
-    return _backupService.parseBackupJson(text).items.length;
-  }
+  int countBackupItems(String text) =>
+      _backupService.parseBackupJson(text).items.length;
 
   Future<int> importBackup(String text) async {
     final BackupData imported = _backupService.parseBackupJson(text);
     _items = imported.items;
-    _history = imported.history;
-    _sortHistory();
-    await _saveAllAndNotify();
+    await _saveItemsAndNotify();
     return imported.items.length;
   }
 
@@ -377,64 +393,62 @@ class WatchTrackerController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _replaceItem(WatchItem replacement) {
+    _items = _items
+        .map((WatchItem item) => item.id == replacement.id ? replacement : item)
+        .toList();
+  }
+
   Future<void> _saveItemsAndNotify() async {
     _rebuildDerivedState();
     notifyListeners();
     await _storageService.saveItems(_items);
   }
 
-  Future<void> _saveAllAndNotify() async {
-    _sortHistory();
-    _rebuildDerivedState();
-    notifyListeners();
-    await Future.wait<void>(<Future<void>>[
-      _storageService.saveItems(_items),
-      _storageService.saveHistory(_history),
-    ]);
-  }
-
-  void _sortHistory() {
-    _history.sort(
-      (WatchHistoryEntry a, WatchHistoryEntry b) =>
-          b.watchedAt.compareTo(a.watchedAt),
-    );
-  }
-
   void _rebuildDerivedState() {
     _itemsView = List<WatchItem>.unmodifiable(_items);
 
-    final Map<String, int> counts = <String, int>{
+    final Map<String, int> statusCounts = <String, int>{
       for (final String status in WatchOptions.statuses) status: 0,
     };
+    final Map<String, int> categoryCounts = <String, int>{
+      for (final String category in WatchOptions.categories) category: 0,
+    };
     for (final WatchItem item in _items) {
-      counts[item.status] = (counts[item.status] ?? 0) + 1;
+      statusCounts[item.status] = (statusCounts[item.status] ?? 0) + 1;
+      categoryCounts[item.category] = (categoryCounts[item.category] ?? 0) + 1;
     }
-    _statusCounts = Map<String, int>.unmodifiable(counts);
+    _statusCounts = Map<String, int>.unmodifiable(statusCounts);
+    _categoryCounts = Map<String, int>.unmodifiable(categoryCounts);
 
     final List<WatchItem> filtered = _items.where(_filter.matches).toList()
       ..sort(_compareByName);
     _visibleItems = List<WatchItem>.unmodifiable(filtered);
 
     final List<WatchItem> watching = _items
-        .where((WatchItem item) =>
-            item.status == WatchOptions.watchingStatus)
+        .where((WatchItem item) => item.status == WatchOptions.watchingStatus)
         .toList()
       ..sort(_compareContinueWatching);
-    _continueWatching = List<WatchItem>.unmodifiable(watching.take(12));
+    _continueWatching = List<WatchItem>.unmodifiable(watching.take(20));
 
     final List<WatchItem> next = _items
-        .where((WatchItem item) =>
-            item.watchNext && item.status != WatchOptions.watchedStatus)
+        .where((WatchItem item) => item.watchNext && item.status != WatchOptions.watchedStatus)
         .toList()
       ..sort(_compareByUpdatedThenName);
-    _watchNextItems = List<WatchItem>.unmodifiable(next.take(12));
+    _watchNextItems = List<WatchItem>.unmodifiable(next.take(20));
 
-    _recentHistory = List<WatchHistoryEntry>.unmodifiable(_history.take(12));
+    final List<WatchItem> completed = _items
+        .where((WatchItem item) => item.completedAt != null)
+        .toList()
+      ..sort((WatchItem a, WatchItem b) {
+        final int date = b.completedAt!.compareTo(a.completedAt!);
+        return date != 0 ? date : _compareByName(a, b);
+      });
+    _recentlyCompleted = List<WatchItem>.unmodifiable(completed.take(12));
   }
 
-  int _compareByName(WatchItem a, WatchItem b) {
-    return a.name.toLowerCase().compareTo(b.name.toLowerCase());
-  }
+  int _compareByName(WatchItem a, WatchItem b) =>
+      a.name.toLowerCase().compareTo(b.name.toLowerCase());
 
   int _compareContinueWatching(WatchItem a, WatchItem b) {
     if (a.watchNext != b.watchNext) return a.watchNext ? -1 : 1;

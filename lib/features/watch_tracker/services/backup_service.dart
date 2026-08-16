@@ -2,27 +2,21 @@ import 'dart:convert';
 
 import '../../../core/constants/watch_options.dart';
 import '../models/backup_data.dart';
-import '../models/watch_history_entry.dart';
 import '../models/watch_item.dart';
 
 class BackupService {
   const BackupService();
 
-  String createBackupJson(
-    List<WatchItem> items,
-    List<WatchHistoryEntry> history,
-  ) {
+  String createBackupJson(List<WatchItem> items) {
     final Map<String, dynamic> backup = <String, dynamic>{
       'metadata': <String, dynamic>{
         'app': 'TVtracker',
-        'version': 2,
-        'exportedAt': DateTime.now().toIso8601String(),
+        'version': 3,
+        'exportedAt': _dateText(DateTime.now()),
         'fields': WatchOptions.backupFields,
+        'note': 'Date-only compact backup. Episode-by-episode history is not stored.',
       },
       'items': items.map((WatchItem item) => item.toJson()).toList(),
-      'history': history
-          .map((WatchHistoryEntry entry) => entry.toJson())
-          .toList(),
     };
 
     return const JsonEncoder.withIndent('  ').convert(backup);
@@ -31,21 +25,20 @@ class BackupService {
   BackupData parseBackupJson(String text) {
     final dynamic decoded = jsonDecode(text);
     final dynamic rawItems;
-    dynamic rawHistory = const <dynamic>[];
+    List<dynamic> rawHistory = const <dynamic>[];
 
-    // Old backups were sometimes just a raw items array.
     if (decoded is List<dynamic>) {
       rawItems = decoded;
     } else if (decoded is Map && decoded['items'] is List<dynamic>) {
       rawItems = decoded['items'];
       if (decoded['history'] is List<dynamic>) {
-        rawHistory = decoded['history'];
+        rawHistory = decoded['history'] as List<dynamic>;
       }
     } else {
       throw const FormatException('No items array found.');
     }
 
-    final List<WatchItem> items = (rawItems as List<dynamic>)
+    List<WatchItem> items = (rawItems as List<dynamic>)
         .where((dynamic item) => item is Map)
         .map((dynamic item) => Map<String, dynamic>.from(item as Map))
         .map(WatchItem.fromJson)
@@ -56,19 +49,41 @@ class BackupService {
       throw const FormatException('No valid items found.');
     }
 
-    final List<WatchHistoryEntry> history = (rawHistory as List<dynamic>)
-        .where((dynamic item) => item is Map)
-        .map((dynamic item) => Map<String, dynamic>.from(item as Map))
-        .map(WatchHistoryEntry.fromJson)
-        .where((WatchHistoryEntry entry) =>
-            entry.itemId.isNotEmpty && entry.itemName.isNotEmpty)
-        .toList();
+    // v2 backups may contain thousands of episode rows. We intentionally do
+    // not keep those rows in v3. We only use the latest date per title to fill
+    // missing last/completion dates.
+    if (rawHistory.isNotEmpty) {
+      final Map<String, DateTime> latestByItem = <String, DateTime>{};
+      for (final dynamic raw in rawHistory) {
+        if (raw is! Map) continue;
+        final Map<String, dynamic> entry = Map<String, dynamic>.from(raw);
+        final String itemId = (entry['itemId'] ?? '').toString();
+        final DateTime? date = DateTime.tryParse((entry['watchedAt'] ?? '').toString());
+        if (itemId.isEmpty || date == null) continue;
+        final DateTime day = DateTime(date.toLocal().year, date.toLocal().month, date.toLocal().day);
+        final DateTime? current = latestByItem[itemId];
+        if (current == null || day.isAfter(current)) latestByItem[itemId] = day;
+      }
 
-    history.sort(
-      (WatchHistoryEntry a, WatchHistoryEntry b) =>
-          b.watchedAt.compareTo(a.watchedAt),
-    );
+      items = items.map((WatchItem item) {
+        final DateTime? latest = latestByItem[item.id];
+        if (latest == null) return item;
+        return item.copyWith(
+          lastWatchedAt: item.lastWatchedAt ?? latest,
+          completedAt: item.status == WatchOptions.watchedStatus
+              ? (item.completedAt ?? latest)
+              : item.completedAt,
+        );
+      }).toList();
+    }
 
-    return BackupData(items: items, history: history);
+    return BackupData(items: items);
+  }
+
+  String _dateText(DateTime value) {
+    final DateTime local = value.toLocal();
+    final String month = local.month.toString().padLeft(2, '0');
+    final String day = local.day.toString().padLeft(2, '0');
+    return '${local.year}-$month-$day';
   }
 }

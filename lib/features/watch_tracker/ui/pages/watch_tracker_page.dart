@@ -11,7 +11,6 @@ import '../../services/watch_storage_service.dart';
 import '../widgets/export_backup_dialog.dart';
 import '../widgets/import_backup_dialog.dart';
 import '../widgets/quick_add_dialog.dart';
-import 'history_tab.dart';
 import 'home_tab.dart';
 import 'library_tab.dart';
 import 'stats_tab.dart';
@@ -54,8 +53,7 @@ class _WatchTrackerPageState extends State<WatchTrackerPage> {
   void _syncSearchText() {
     _searchDebounce?.cancel();
     _searchDebounce = Timer(const Duration(milliseconds: 180), () {
-      if (!mounted) return;
-      _controller.setSearchQuery(_searchController.text);
+      if (mounted) _controller.setSearchQuery(_searchController.text);
     });
   }
 
@@ -66,46 +64,7 @@ class _WatchTrackerPageState extends State<WatchTrackerPage> {
       builder: (BuildContext context, Widget? child) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text(
-              'TVtracker',
-              style: TextStyle(fontWeight: FontWeight.w900),
-            ),
-            actions: <Widget>[
-              IconButton(
-                tooltip: 'Export backup',
-                onPressed: _controller.isLoading ? null : _exportBackup,
-                icon: const Icon(Icons.upload_file),
-              ),
-              PopupMenuButton<String>(
-                onSelected: _handleMenu,
-                itemBuilder: (BuildContext context) => const <PopupMenuEntry<String>>[
-                  PopupMenuItem<String>(
-                    value: 'import',
-                    child: ListTile(
-                      leading: Icon(Icons.file_open),
-                      title: Text('Import Backup'),
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-                  PopupMenuItem<String>(
-                    value: 'reload_default',
-                    child: ListTile(
-                      leading: Icon(Icons.restore),
-                      title: Text('Reload Default Backup'),
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-                  PopupMenuItem<String>(
-                    value: 'delete_all',
-                    child: ListTile(
-                      leading: Icon(Icons.delete_sweep_outlined),
-                      title: Text('Delete All Data'),
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            title: const Text('TVtracker', style: TextStyle(fontWeight: FontWeight.w900)),
           ),
           body: DecoratedBox(
             decoration: const BoxDecoration(
@@ -120,32 +79,34 @@ class _WatchTrackerPageState extends State<WatchTrackerPage> {
               top: false,
               child: _controller.isLoading
                   ? const Center(child: CircularProgressIndicator())
-                  : Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 1150),
-                        child: IndexedStack(
-                          index: _tabIndex,
-                          children: <Widget>[
-                            HomeTab(
-                              controller: _controller,
-                              onOpenItem: _openItem,
-                              onEpisodeWatched: _episodeWatched,
-                              onMovieWatched: _movieWatched,
-                            ),
-                            LibraryTab(
-                              controller: _controller,
-                              searchController: _searchController,
-                              onOpenItem: _openItem,
-                              onToggleWatchNext: _toggleWatchNext,
-                              onEpisodeWatched: _episodeWatched,
-                              onMovieWatched: _movieWatched,
-                              onClearFilters: _clearFilters,
-                            ),
-                            HistoryTab(controller: _controller),
-                            StatsTab(controller: _controller),
-                          ],
+                  : IndexedStack(
+                      index: _tabIndex,
+                      children: <Widget>[
+                        HomeTab(
+                          controller: _controller,
+                          onOpenItem: _openItem,
+                          onEpisodeWatched: _episodeWatched,
+                          onCompleteSeason: _completeSeason,
+                          onMovieWatched: _movieWatched,
                         ),
-                      ),
+                        LibraryTab(
+                          controller: _controller,
+                          searchController: _searchController,
+                          onOpenItem: _openItem,
+                          onToggleWatchNext: _toggleWatchNext,
+                          onEpisodeWatched: _episodeWatched,
+                          onCompleteSeason: _completeSeason,
+                          onMovieWatched: _movieWatched,
+                          onClearFilters: _clearFilters,
+                        ),
+                        StatsTab(
+                          controller: _controller,
+                          onExport: _exportBackup,
+                          onImport: _openImportDialog,
+                          onReloadDefault: _reloadDefaultBackup,
+                          onDeleteAll: _deleteAll,
+                        ),
+                      ],
                     ),
             ),
           ),
@@ -162,7 +123,6 @@ class _WatchTrackerPageState extends State<WatchTrackerPage> {
             destinations: const <NavigationDestination>[
               NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
               NavigationDestination(icon: Icon(Icons.video_library_outlined), selectedIcon: Icon(Icons.video_library), label: 'Library'),
-              NavigationDestination(icon: Icon(Icons.history), label: 'History'),
               NavigationDestination(icon: Icon(Icons.bar_chart_outlined), selectedIcon: Icon(Icons.bar_chart), label: 'Stats'),
             ],
           ),
@@ -175,73 +135,55 @@ class _WatchTrackerPageState extends State<WatchTrackerPage> {
     final bool? added = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) => QuickAddDialog(
-        onAdd: (String name, String category, bool watchNext) {
+        onAdd: (String name, String category, bool watchNext, List<int> counts) {
           return _controller.addItem(
             name: name,
             category: category,
             status: WatchOptions.toWatchStatus,
             watchNext: watchNext,
+            seasonEpisodeCounts: counts,
           );
         },
       ),
     );
-
-    if (added == true) {
-      _showMessage('Added to To Watch.');
-    }
+    if (added == true) _showMessage('Added to To Watch.');
   }
 
   void _openItem(WatchItem item) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => WatchItemDetailPage(
-          itemId: item.id,
-          controller: _controller,
-        ),
+        builder: (_) => WatchItemDetailPage(itemId: item.id, controller: _controller),
       ),
     );
   }
 
   Future<void> _episodeWatched(WatchItem item) async {
-    await _controller.incrementEpisode(item.id);
-    if (!mounted) return;
-    final WatchItem? updated = _controller.findItem(item.id);
-    _showMessage(
-      updated == null
-          ? 'Episode saved.'
-          : '${updated.name}: ${updated.progressLabel} saved.',
-      actionLabel: 'Undo',
-      action: () => _controller.undoLastWatch(item.id),
-    );
+    final String message = await _controller.incrementEpisode(item.id);
+    if (mounted) _showMessage(message);
+  }
+
+  Future<void> _completeSeason(WatchItem item) async {
+    final String message = await _controller.completeSeason(item.id);
+    if (mounted) _showMessage(message);
   }
 
   Future<void> _movieWatched(WatchItem item) async {
     await _controller.markMovieWatched(item.id);
-    if (!mounted) return;
-    _showMessage(
-      '${item.name}: watched.',
-      actionLabel: 'Undo',
-      action: () => _controller.undoLastWatch(item.id),
-    );
+    if (mounted) _showMessage('${item.name}: watched date saved.');
   }
 
-  Future<void> _toggleWatchNext(WatchItem item) async {
-    await _controller.toggleWatchNext(item.id);
-  }
+  Future<void> _toggleWatchNext(WatchItem item) => _controller.toggleWatchNext(item.id);
 
   void _clearFilters() {
-    if (_searchController.text.isNotEmpty) {
-      _searchController.clear();
-    }
+    if (_searchController.text.isNotEmpty) _searchController.clear();
     _searchDebounce?.cancel();
     _controller.clearFilters();
   }
 
   Future<void> _exportBackup() async {
-    final String jsonText = _controller.exportBackupJson();
     final bool? copied = await showDialog<bool>(
       context: context,
-      builder: (BuildContext context) => ExportBackupDialog(jsonText: jsonText),
+      builder: (BuildContext context) => ExportBackupDialog(jsonText: _controller.exportBackupJson()),
     );
     if (copied == true) _showMessage('Backup JSON copied.');
   }
@@ -256,11 +198,7 @@ class _WatchTrackerPageState extends State<WatchTrackerPage> {
   Future<bool> _importBackupText(String text) async {
     try {
       final int count = _controller.countBackupItems(text);
-      final bool confirmed = await _confirm(
-        'Import $count titles? This replaces the current library and detailed history.',
-      );
-      if (!confirmed) return false;
-
+      if (!await _confirm('Import $count titles? This replaces the current local library.')) return false;
       await _controller.importBackup(text);
       _clearFilters();
       _showMessage('Backup imported.');
@@ -272,22 +210,15 @@ class _WatchTrackerPageState extends State<WatchTrackerPage> {
   }
 
   Future<void> _deleteAll() async {
-    if (_controller.items.isEmpty && _controller.history.isEmpty) return;
-    final bool confirmed = await _confirm(
-      'Delete the whole library and watch history? Export a backup first if needed.',
-    );
-    if (!confirmed) return;
+    if (_controller.items.isEmpty) return;
+    if (!await _confirm('Delete the whole local library? Export a backup first if needed.')) return;
     await _controller.deleteAll();
     _clearFilters();
     _showMessage('All local tracker data deleted.');
   }
 
   Future<void> _reloadDefaultBackup() async {
-    final bool confirmed = await _confirm(
-      'Reload the bundled default backup? This replaces the current library and watch history.',
-    );
-    if (!confirmed) return;
-
+    if (!await _confirm('Reload the bundled default backup? This replaces your current local library.')) return;
     try {
       final int count = await _controller.loadDefaultBackup();
       _clearFilters();
@@ -297,52 +228,25 @@ class _WatchTrackerPageState extends State<WatchTrackerPage> {
     }
   }
 
-  Future<void> _handleMenu(String value) async {
-    if (value == 'import') {
-      await _openImportDialog();
-    } else if (value == 'reload_default') {
-      await _reloadDefaultBackup();
-    } else if (value == 'delete_all') {
-      await _deleteAll();
-    }
-  }
-
   Future<bool> _confirm(String message) async {
-    final bool? result = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext dialogContext) => AlertDialog(
-        title: const Text('Confirm'),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Cancel'),
+    return await showDialog<bool>(
+          context: context,
+          builder: (BuildContext d) => AlertDialog(
+            title: const Text('Confirm'),
+            content: Text(message),
+            actions: <Widget>[
+              TextButton(onPressed: () => Navigator.pop(d, false), child: const Text('Cancel')),
+              FilledButton(onPressed: () => Navigator.pop(d, true), child: const Text('OK')),
+            ],
           ),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-    return result ?? false;
+        ) ??
+        false;
   }
 
-  void _showMessage(
-    String message, {
-    String? actionLabel,
-    VoidCallback? action,
-  }) {
+  void _showMessage(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(message),
-          action: actionLabel == null || action == null
-              ? null
-              : SnackBarAction(label: actionLabel, onPressed: action),
-        ),
-      );
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 }

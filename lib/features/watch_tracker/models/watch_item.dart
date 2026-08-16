@@ -7,14 +7,14 @@ class WatchItem {
     required this.name,
     required this.category,
     required this.status,
+    this.seasonEpisodeCounts = const <int>[],
     this.currentSeason = 1,
     this.currentEpisode = 0,
-    this.runtimeMinutes,
     this.watchNext = false,
     this.addedAt,
-    this.updatedAt,
     this.lastWatchedAt,
-    this.watchedAt,
+    this.completedAt,
+    this.updatedAt,
   });
 
   final String id;
@@ -22,34 +22,56 @@ class WatchItem {
   final String category;
   final String status;
 
-  /// For Series/Anime this is the season containing [currentEpisode].
+  /// Episode totals for seasons 1..N. A value of 0 means the total is unknown.
+  /// Movies always use an empty list.
+  final List<int> seasonEpisodeCounts;
   final int currentSeason;
-
-  /// Last watched episode in [currentSeason]. Zero means no progress recorded.
   final int currentEpisode;
-
-  /// Optional runtime used for local watch-time statistics.
-  /// For Series/Anime this is the normal episode runtime; for Movie it is the
-  /// movie runtime.
-  final int? runtimeMinutes;
-
-  /// Simple priority flag used by the Watch Next section.
   final bool watchNext;
 
-  /// Old v1 data does not contain these timestamps, so they intentionally stay
-  /// null after migration instead of inventing dates.
+  /// Dates are normalized to the local calendar day. The UI intentionally does
+  /// not show time-of-day data.
   final DateTime? addedAt;
-  final DateTime? updatedAt;
   final DateTime? lastWatchedAt;
-  final DateTime? watchedAt;
+  final DateTime? completedAt;
+  final DateTime? updatedAt;
 
   bool get isMovie => category == 'Movie';
   bool get isEpisodic => !isMovie;
+  int get seasonCount => isMovie ? 0 : seasonEpisodeCounts.length;
+
+  int episodeCountForSeason(int season) {
+    if (!isEpisodic || season < 1 || season > seasonEpisodeCounts.length) {
+      return 0;
+    }
+    return seasonEpisodeCounts[season - 1];
+  }
+
+  int get currentSeasonEpisodeCount => episodeCountForSeason(currentSeason);
+  bool get hasKnownCurrentSeasonTotal => currentSeasonEpisodeCount > 0;
+
+  bool get isAtKnownFinalEpisode {
+    if (!isEpisodic || seasonCount == 0) return false;
+    final int total = currentSeasonEpisodeCount;
+    return currentSeason == seasonCount && total > 0 && currentEpisode >= total;
+  }
 
   String get progressLabel {
     if (isMovie) return status;
-    if (currentEpisode <= 0) return 'Not started';
+    final int total = currentSeasonEpisodeCount;
+    if (total > 0) return 'S$currentSeason E$currentEpisode / $total';
     return 'S$currentSeason E$currentEpisode';
+  }
+
+  String get structureLabel {
+    if (isMovie) return 'Movie';
+    if (seasonEpisodeCounts.isEmpty) return 'Season counts not set';
+    final String seasons = seasonEpisodeCounts.length == 1
+        ? '1 season'
+        : '${seasonEpisodeCounts.length} seasons';
+    final bool allUnknown = seasonEpisodeCounts.every((int count) => count <= 0);
+    if (allUnknown) return '$seasons • episode totals unknown';
+    return '$seasons • ${seasonEpisodeCounts.map((int count) => count > 0 ? count : '?').join(' / ')} eps';
   }
 
   factory WatchItem.create({
@@ -57,33 +79,64 @@ class WatchItem {
     required String category,
     String status = WatchOptions.defaultStatus,
     bool watchNext = false,
+    List<int> seasonEpisodeCounts = const <int>[],
   }) {
-    final DateTime now = DateTime.now();
+    final DateTime today = _today();
+    final String safeCategory = _safeCategory(category);
+    final bool movie = safeCategory == 'Movie';
+    final List<int> counts = movie
+        ? const <int>[]
+        : _safeSeasonCounts(seasonEpisodeCounts.isEmpty ? const <int>[0] : seasonEpisodeCounts);
+
     return WatchItem(
       id: IdGenerator.create(),
       name: name.trim(),
-      category: _safeCategory(category),
+      category: safeCategory,
       status: _safeStatus(status),
+      seasonEpisodeCounts: counts,
       watchNext: watchNext,
-      addedAt: now,
-      updatedAt: now,
+      addedAt: today,
+      updatedAt: today,
     );
   }
 
   factory WatchItem.fromJson(Map<String, dynamic> json) {
+    final String category = _safeCategory(json['category']?.toString());
+    final int currentSeason = _positiveInt(json['currentSeason'], fallback: 1);
+    final int currentEpisode = _nonNegativeInt(json['currentEpisode']);
+
+    List<int> counts = _seasonCountsValue(json['seasonEpisodeCounts']);
+    if (category == 'Movie') {
+      counts = const <int>[];
+    } else if (counts.isEmpty) {
+      // v1/v2 did not know season totals. Preserve progress and leave totals
+      // unknown until the user edits the season structure.
+      counts = List<int>.filled(currentSeason < 1 ? 1 : currentSeason, 0);
+    } else if (counts.length < currentSeason) {
+      counts = <int>[...counts, ...List<int>.filled(currentSeason - counts.length, 0)];
+    }
+
+    final String status = _safeStatus(json['status']?.toString());
+    DateTime? completedAt = _dateValue(json['completedAt']);
+    completedAt ??= _dateValue(json['watchedAt']); // v2 movie field
+    final DateTime? legacyLastWatched = _dateValue(json['lastWatchedAt']);
+    if (completedAt == null && status == WatchOptions.watchedStatus) {
+      completedAt = legacyLastWatched;
+    }
+
     return WatchItem(
       id: (json['id'] ?? IdGenerator.create()).toString(),
       name: (json['name'] ?? '').toString().trim(),
-      category: _safeCategory(json['category']?.toString()),
-      status: _safeStatus(json['status']?.toString()),
-      currentSeason: _positiveInt(json['currentSeason'], fallback: 1),
-      currentEpisode: _nonNegativeInt(json['currentEpisode']),
-      runtimeMinutes: _nullablePositiveInt(json['runtimeMinutes']),
-      watchNext: _boolValue(json['watchNext']),
+      category: category,
+      status: status,
+      seasonEpisodeCounts: List<int>.unmodifiable(counts),
+      currentSeason: currentSeason,
+      currentEpisode: currentEpisode,
+      watchNext: _boolValue(json['watchNext']) && status != WatchOptions.watchedStatus,
       addedAt: _dateValue(json['addedAt']),
+      lastWatchedAt: legacyLastWatched,
+      completedAt: completedAt,
       updatedAt: _dateValue(json['updatedAt']),
-      lastWatchedAt: _dateValue(json['lastWatchedAt']),
-      watchedAt: _dateValue(json['watchedAt']),
     );
   }
 
@@ -93,14 +146,14 @@ class WatchItem {
       'name': name,
       'category': category,
       'status': status,
+      'seasonEpisodeCounts': seasonEpisodeCounts,
       'currentSeason': currentSeason,
       'currentEpisode': currentEpisode,
-      'runtimeMinutes': runtimeMinutes,
       'watchNext': watchNext,
-      'addedAt': addedAt?.toIso8601String(),
-      'updatedAt': updatedAt?.toIso8601String(),
-      'lastWatchedAt': lastWatchedAt?.toIso8601String(),
-      'watchedAt': watchedAt?.toIso8601String(),
+      'addedAt': _dateText(addedAt),
+      'lastWatchedAt': _dateText(lastWatchedAt),
+      'completedAt': _dateText(completedAt),
+      'updatedAt': _dateText(updatedAt),
     };
   }
 
@@ -109,38 +162,47 @@ class WatchItem {
     String? name,
     String? category,
     String? status,
+    List<int>? seasonEpisodeCounts,
     int? currentSeason,
     int? currentEpisode,
-    int? runtimeMinutes,
-    bool clearRuntimeMinutes = false,
     bool? watchNext,
     DateTime? addedAt,
-    DateTime? updatedAt,
     DateTime? lastWatchedAt,
     bool clearLastWatchedAt = false,
-    DateTime? watchedAt,
-    bool clearWatchedAt = false,
+    DateTime? completedAt,
+    bool clearCompletedAt = false,
+    DateTime? updatedAt,
   }) {
+    final String nextCategory = category == null ? this.category : _safeCategory(category);
     return WatchItem(
       id: id ?? this.id,
       name: name?.trim() ?? this.name,
-      category: category == null ? this.category : _safeCategory(category),
+      category: nextCategory,
       status: status == null ? this.status : _safeStatus(status),
+      seasonEpisodeCounts: nextCategory == 'Movie'
+          ? const <int>[]
+          : List<int>.unmodifiable(
+              _safeSeasonCounts(seasonEpisodeCounts ?? this.seasonEpisodeCounts),
+            ),
       currentSeason: currentSeason == null
           ? this.currentSeason
           : (currentSeason < 1 ? 1 : currentSeason),
       currentEpisode: currentEpisode == null
           ? this.currentEpisode
           : (currentEpisode < 0 ? 0 : currentEpisode),
-      runtimeMinutes:
-          clearRuntimeMinutes ? null : (runtimeMinutes ?? this.runtimeMinutes),
       watchNext: watchNext ?? this.watchNext,
-      addedAt: addedAt ?? this.addedAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      lastWatchedAt: clearLastWatchedAt ? null : (lastWatchedAt ?? this.lastWatchedAt),
-      watchedAt: clearWatchedAt ? null : (watchedAt ?? this.watchedAt),
+      addedAt: _dateOnly(addedAt ?? this.addedAt),
+      lastWatchedAt: clearLastWatchedAt
+          ? null
+          : _dateOnly(lastWatchedAt ?? this.lastWatchedAt),
+      completedAt: clearCompletedAt
+          ? null
+          : _dateOnly(completedAt ?? this.completedAt),
+      updatedAt: _dateOnly(updatedAt ?? this.updatedAt),
     );
   }
+
+  static DateTime today() => _today();
 
   static String _safeCategory(String? value) {
     if (WatchOptions.categories.contains(value)) return value!;
@@ -152,6 +214,19 @@ class WatchItem {
     return WatchOptions.fallbackStatus;
   }
 
+  static List<int> _safeSeasonCounts(List<int> counts) {
+    if (counts.isEmpty) return const <int>[0];
+    return counts.map((int value) => value < 0 ? 0 : value).toList(growable: false);
+  }
+
+  static List<int> _seasonCountsValue(dynamic value) {
+    if (value is! List) return <int>[];
+    return value
+        .map((dynamic item) => _intValue(item) ?? 0)
+        .map((int item) => item < 0 ? 0 : item)
+        .toList(growable: false);
+  }
+
   static int _positiveInt(dynamic value, {required int fallback}) {
     final int? parsed = _intValue(value);
     if (parsed == null || parsed < 1) return fallback;
@@ -161,12 +236,6 @@ class WatchItem {
   static int _nonNegativeInt(dynamic value) {
     final int? parsed = _intValue(value);
     if (parsed == null || parsed < 0) return 0;
-    return parsed;
-  }
-
-  static int? _nullablePositiveInt(dynamic value) {
-    final int? parsed = _intValue(value);
-    if (parsed == null || parsed <= 0) return null;
     return parsed;
   }
 
@@ -182,6 +251,24 @@ class WatchItem {
 
   static DateTime? _dateValue(dynamic value) {
     if (value == null) return null;
-    return DateTime.tryParse(value.toString());
+    final DateTime? parsed = DateTime.tryParse(value.toString());
+    return _dateOnly(parsed?.toLocal());
+  }
+
+  static DateTime? _dateOnly(DateTime? value) {
+    if (value == null) return null;
+    return DateTime(value.year, value.month, value.day);
+  }
+
+  static DateTime _today() {
+    final DateTime now = DateTime.now();
+    return DateTime(now.year, now.month, now.day);
+  }
+
+  static String? _dateText(DateTime? value) {
+    if (value == null) return null;
+    final String month = value.month.toString().padLeft(2, '0');
+    final String day = value.day.toString().padLeft(2, '0');
+    return '${value.year}-$month-$day';
   }
 }
