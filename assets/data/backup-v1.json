@@ -17,7 +17,7 @@
       "completedAt",
       "updatedAt"
     ],
-    "note": "Bundled compact default backup. Old episode-by-episode TVTime history was collapsed to per-title dates. Status correction on 2026-08-17: Watching titles whose saved progress reaches the last known season/episode were converted to Watched; existing Watched titles with missing completedAt were filled from available dates.",
+    "note": "Bundled compact default backup. Old episode-by-episode TVTime history was collapsed to per-title dates.",
     "seasonData": {
       "source": "TVMaze",
       "lookup": "TheTVDB IDs recovered from TVTime export",
@@ -25,27 +25,6 @@
       "unresolvedTitles": 15,
       "numberingMismatchTitles": 8,
       "note": "seasonEpisodeCounts contains the episode totals known to TVMaze when this updater was run. Running/announced shows can gain episodes or seasons later."
-    },
-    "statusCorrection": {
-      "date": "2026-08-17",
-      "sourceFiles": [
-        "backup(3).json",
-        "tvtime data(3).zip"
-      ],
-      "method": "Conservative: changed only titles whose currentSeason/currentEpisode reaches the last episode in seasonEpisodeCounts. Left partial-progress titles for manual review.",
-      "watchingConvertedToWatched": 91,
-      "watchedCompletedAtFilled": 13,
-      "remainingWatchingForManualReview": 6,
-      "finalStatusCounts": {
-        "To Watch": 863,
-        "Watched": 430,
-        "Watching": 6
-      },
-      "finalCategoryCounts": {
-        "Movie": 725,
-        "Anime": 406,
-        "Series": 168
-      }
     }
   },
   "items": [
@@ -106,7 +85,7 @@
       "watchNext": false,
       "addedAt": "2024-09-12",
       "lastWatchedAt": null,
-      "completedAt": "2024-09-12",
+      "completedAt": null,
       "updatedAt": "2024-09-12"
     },
     {
@@ -5636,7 +5615,7 @@
       "watchNext": false,
       "addedAt": "2024-01-24",
       "lastWatchedAt": null,
-      "completedAt": "2025-11-16",
+      "completedAt": null,
       "updatedAt": "2025-11-16"
     },
     {
@@ -6182,7 +6161,7 @@
       "watchNext": false,
       "addedAt": "2026-05-11",
       "lastWatchedAt": null,
-      "completedAt": "2026-05-11",
+      "completedAt": null,
       "updatedAt": "2026-05-11"
     },
     {
@@ -6252,7 +6231,7 @@
       "watchNext": false,
       "addedAt": "2025-02-05",
       "lastWatchedAt": null,
-      "completedAt": "2025-02-05",
+      "completedAt": null,
       "updatedAt": "2025-02-05"
     },
     {
@@ -7680,7 +7659,7 @@
       "watchNext": false,
       "addedAt": "2025-02-15",
       "lastWatchedAt": null,
-      "completedAt": "2025-02-15",
+      "completedAt": null,
       "updatedAt": "2025-02-15"
     },
     {
@@ -9192,7 +9171,7 @@
       "watchNext": false,
       "addedAt": "2023-01-12",
       "lastWatchedAt": null,
-      "completedAt": "2024-03-23",
+      "completedAt": null,
       "updatedAt": "2024-03-23"
     },
     {
@@ -9976,7 +9955,7 @@
       "watchNext": false,
       "addedAt": "2023-10-29",
       "lastWatchedAt": null,
-      "completedAt": "2026-04-25",
+      "completedAt": null,
       "updatedAt": "2026-04-25"
     },
     {
@@ -10102,7 +10081,7 @@
       "watchNext": false,
       "addedAt": "2024-03-26",
       "lastWatchedAt": null,
-      "completedAt": "2024-07-26",
+      "completedAt": null,
       "updatedAt": "2024-07-26"
     },
     {
@@ -13067,7 +13046,7 @@
       "watchNext": false,
       "addedAt": "2026-05-10",
       "lastWatchedAt": null,
-      "completedAt": "2026-05-10",
+      "completedAt": null,
       "updatedAt": "2026-05-10"
     },
     {
@@ -13577,7 +13556,7 @@
       "watchNext": false,
       "addedAt": "2026-04-21",
       "lastWatchedAt": null,
-      "completedAt": "2026-04-21",
+      "completedAt": null,
       "updatedAt": "2026-04-21"
     },
     {
@@ -14374,7 +14353,7 @@
       "watchNext": false,
       "addedAt": "2023-09-26",
       "lastWatchedAt": null,
-      "completedAt": "2023-09-26",
+      "completedAt": null,
       "updatedAt": "2023-09-26"
     },
     {
@@ -14641,7 +14620,7 @@
       "watchNext": false,
       "addedAt": "2026-05-13",
       "lastWatchedAt": null,
-      "completedAt": "2026-05-13",
+      "completedAt": null,
       "updatedAt": "2026-05-13"
     },
     {
@@ -16957,7 +16936,7 @@
       "watchNext": false,
       "addedAt": "2023-10-12",
       "lastWatchedAt": null,
-      "completedAt": "2023-10-12",
+      "completedAt": null,
       "updatedAt": "2023-10-12"
     },
     {
@@ -18434,7 +18413,7 @@
       "id": "import-1199",
       "name": "A Town Where You Live",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         12
       ],
@@ -18443,14 +18422,14 @@
       "watchNext": false,
       "addedAt": "2026-04-21",
       "lastWatchedAt": "2026-05-11",
-      "completedAt": "2026-05-11",
+      "completedAt": null,
       "updatedAt": "2026-05-11"
     },
     {
       "id": "import-1200",
       "name": "After the Rain",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         12
       ],
@@ -18459,14 +18438,14 @@
       "watchNext": false,
       "addedAt": "2026-04-15",
       "lastWatchedAt": "2026-04-15",
-      "completedAt": "2026-04-15",
+      "completedAt": null,
       "updatedAt": "2026-04-15"
     },
     {
       "id": "import-1201",
       "name": "Air",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13
       ],
@@ -18475,14 +18454,14 @@
       "watchNext": false,
       "addedAt": "2025-04-15",
       "lastWatchedAt": "2026-04-19",
-      "completedAt": "2026-04-19",
+      "completedAt": null,
       "updatedAt": "2026-04-19"
     },
     {
       "id": "import-1202",
       "name": "Akame ga Kill!",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         24
       ],
@@ -18491,14 +18470,14 @@
       "watchNext": false,
       "addedAt": "2023-04-30",
       "lastWatchedAt": "2023-04-30",
-      "completedAt": "2023-04-30",
+      "completedAt": null,
       "updatedAt": "2023-04-30"
     },
     {
       "id": "import-1203",
       "name": "And Then There Were None",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         3
       ],
@@ -18507,14 +18486,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": "2022-09-26",
+      "completedAt": null,
       "updatedAt": "2022-09-26"
     },
     {
       "id": "import-1204",
       "name": "Angel Beats!",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13
       ],
@@ -18523,14 +18502,14 @@
       "watchNext": false,
       "addedAt": "2023-10-06",
       "lastWatchedAt": "2023-10-06",
-      "completedAt": "2023-10-06",
+      "completedAt": null,
       "updatedAt": "2023-10-06"
     },
     {
       "id": "import-1205",
       "name": "Another",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         12
       ],
@@ -18539,14 +18518,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": "2022-09-26",
+      "completedAt": null,
       "updatedAt": "2022-09-26"
     },
     {
       "id": "import-1206",
       "name": "Arrow",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         23,
         23,
@@ -18562,14 +18541,14 @@
       "watchNext": false,
       "addedAt": "2022-10-06",
       "lastWatchedAt": "2022-10-06",
-      "completedAt": "2022-10-06",
+      "completedAt": null,
       "updatedAt": "2022-10-06"
     },
     {
       "id": "import-1207",
       "name": "Attack on Titan",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         25,
         12,
@@ -18581,14 +18560,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2023-12-12",
-      "completedAt": "2023-12-12",
+      "completedAt": null,
       "updatedAt": "2023-12-12"
     },
     {
       "id": "import-1208",
       "name": "Band of Brothers",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         10
       ],
@@ -18597,14 +18576,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": "2022-09-26",
+      "completedAt": null,
       "updatedAt": "2022-09-26"
     },
     {
       "id": "import-1209",
       "name": "Barakamon",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         12
       ],
@@ -18613,14 +18592,14 @@
       "watchNext": false,
       "addedAt": "2025-04-13",
       "lastWatchedAt": "2025-04-13",
-      "completedAt": "2025-04-13",
+      "completedAt": null,
       "updatedAt": "2025-04-13"
     },
     {
       "id": "import-1210",
       "name": "Beck: Mongolian Chop Squad",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         26
       ],
@@ -18629,14 +18608,14 @@
       "watchNext": false,
       "addedAt": "2025-10-18",
       "lastWatchedAt": "2025-12-20",
-      "completedAt": "2025-12-20",
+      "completedAt": null,
       "updatedAt": "2025-12-20"
     },
     {
       "id": "import-1211",
       "name": "Beyond the Boundary",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         12
       ],
@@ -18645,14 +18624,14 @@
       "watchNext": false,
       "addedAt": "2023-10-04",
       "lastWatchedAt": "2023-10-04",
-      "completedAt": "2023-10-04",
+      "completedAt": null,
       "updatedAt": "2023-10-04"
     },
     {
       "id": "import-1212",
       "name": "Black Bullet",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13
       ],
@@ -18661,7 +18640,7 @@
       "watchNext": false,
       "addedAt": "2023-09-26",
       "lastWatchedAt": "2025-05-02",
-      "completedAt": "2025-05-02",
+      "completedAt": null,
       "updatedAt": "2025-05-02"
     },
     {
@@ -18703,7 +18682,7 @@
       "id": "import-1214",
       "name": "BTOOOM!",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         12
       ],
@@ -18712,14 +18691,14 @@
       "watchNext": false,
       "addedAt": "2025-06-17",
       "lastWatchedAt": "2025-06-17",
-      "completedAt": "2025-06-17",
+      "completedAt": null,
       "updatedAt": "2025-06-17"
     },
     {
       "id": "import-1215",
       "name": "Bunny Drop",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         11
       ],
@@ -18728,14 +18707,14 @@
       "watchNext": false,
       "addedAt": "2026-04-17",
       "lastWatchedAt": "2026-06-12",
-      "completedAt": "2026-06-12",
+      "completedAt": null,
       "updatedAt": "2026-06-12"
     },
     {
       "id": "import-1216",
       "name": "Charlotte",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13
       ],
@@ -18744,14 +18723,14 @@
       "watchNext": false,
       "addedAt": "2024-02-19",
       "lastWatchedAt": "2025-04-14",
-      "completedAt": "2025-04-14",
+      "completedAt": null,
       "updatedAt": "2025-04-14"
     },
     {
       "id": "import-1217",
       "name": "Chernobyl",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         5
       ],
@@ -18760,14 +18739,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": "2022-09-26",
+      "completedAt": null,
       "updatedAt": "2022-09-26"
     },
     {
       "id": "import-1218",
       "name": "Clannad",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         22,
         24
@@ -18777,14 +18756,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": "2022-09-26",
+      "completedAt": null,
       "updatedAt": "2022-09-26"
     },
     {
       "id": "import-1219",
       "name": "Conversations with a Killer: The Jeffrey Dahmer Tapes",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         3
       ],
@@ -18793,14 +18772,14 @@
       "watchNext": false,
       "addedAt": "2022-10-28",
       "lastWatchedAt": "2022-10-28",
-      "completedAt": "2022-10-28",
+      "completedAt": null,
       "updatedAt": "2022-10-28"
     },
     {
       "id": "import-1220",
       "name": "Cowboy Bebop",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         26
       ],
@@ -18809,14 +18788,14 @@
       "watchNext": false,
       "addedAt": "2023-10-06",
       "lastWatchedAt": "2025-11-09",
-      "completedAt": "2025-11-09",
+      "completedAt": null,
       "updatedAt": "2025-11-09"
     },
     {
       "id": "import-1221",
       "name": "Cyberpunk: Edgerunners",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         10
       ],
@@ -18825,14 +18804,14 @@
       "watchNext": false,
       "addedAt": "2023-10-04",
       "lastWatchedAt": "2023-10-09",
-      "completedAt": "2023-10-09",
+      "completedAt": null,
       "updatedAt": "2023-10-09"
     },
     {
       "id": "import-1222",
       "name": "Dark",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         10,
         8,
@@ -18843,14 +18822,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": "2022-09-26",
+      "completedAt": null,
       "updatedAt": "2022-09-26"
     },
     {
       "id": "import-1223",
       "name": "DARLING in the FRANXX",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         24
       ],
@@ -18859,14 +18838,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": "2022-09-26",
+      "completedAt": null,
       "updatedAt": "2022-09-26"
     },
     {
       "id": "import-1224",
       "name": "Death Note",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         37
       ],
@@ -18875,14 +18854,14 @@
       "watchNext": false,
       "addedAt": "2025-12-31",
       "lastWatchedAt": "2025-12-31",
-      "completedAt": "2025-12-31",
+      "completedAt": null,
       "updatedAt": "2025-12-31"
     },
     {
       "id": "import-1225",
       "name": "Defending Jacob",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         8
       ],
@@ -18891,14 +18870,14 @@
       "watchNext": false,
       "addedAt": "2022-09-27",
       "lastWatchedAt": "2022-09-27",
-      "completedAt": "2022-09-27",
+      "completedAt": null,
       "updatedAt": "2022-09-27"
     },
     {
       "id": "import-1226",
       "name": "Dororo (2019)",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         24
       ],
@@ -18907,14 +18886,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": "2022-09-26",
+      "completedAt": null,
       "updatedAt": "2022-09-26"
     },
     {
       "id": "import-1227",
       "name": "Ef – a Tale of ...",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         12,
         12
@@ -18924,14 +18903,14 @@
       "watchNext": false,
       "addedAt": "2025-04-15",
       "lastWatchedAt": "2026-06-09",
-      "completedAt": "2026-06-09",
+      "completedAt": null,
       "updatedAt": "2026-06-09"
     },
     {
       "id": "import-1228",
       "name": "Elfen Lied",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13
       ],
@@ -18940,14 +18919,14 @@
       "watchNext": false,
       "addedAt": "2023-09-26",
       "lastWatchedAt": "2025-04-12",
-      "completedAt": "2025-04-12",
+      "completedAt": null,
       "updatedAt": "2025-04-12"
     },
     {
       "id": "import-1229",
       "name": "Erased",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         12
       ],
@@ -18956,14 +18935,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": "2022-09-26",
+      "completedAt": null,
       "updatedAt": "2022-09-26"
     },
     {
       "id": "import-1230",
       "name": "Ergo Proxy",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         23
       ],
@@ -18972,14 +18951,14 @@
       "watchNext": false,
       "addedAt": "2024-12-09",
       "lastWatchedAt": "2025-07-25",
-      "completedAt": "2025-07-25",
+      "completedAt": null,
       "updatedAt": "2025-07-25"
     },
     {
       "id": "import-1231",
       "name": "Five Days at Memorial",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         8
       ],
@@ -18988,14 +18967,14 @@
       "watchNext": false,
       "addedAt": "2022-10-06",
       "lastWatchedAt": "2022-10-06",
-      "completedAt": "2022-10-06",
+      "completedAt": null,
       "updatedAt": "2022-10-06"
     },
     {
       "id": "import-1232",
       "name": "Fruits Basket (2019)",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         25,
         25,
@@ -19006,14 +18985,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": "2022-09-26",
+      "completedAt": null,
       "updatedAt": "2022-09-26"
     },
     {
       "id": "import-1233",
       "name": "Fullmetal Alchemist",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         51
       ],
@@ -19022,14 +19001,14 @@
       "watchNext": false,
       "addedAt": "2022-10-01",
       "lastWatchedAt": "2022-10-01",
-      "completedAt": "2022-10-01",
-      "updatedAt": "2022-10-01"
+      "completedAt": null,
+      "updatedAt": "2023-09-04"
     },
     {
       "id": "import-1234",
       "name": "Game of Thrones",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         10,
         10,
@@ -19045,14 +19024,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2023-04-30",
-      "completedAt": "2023-04-30",
+      "completedAt": null,
       "updatedAt": "2023-04-30"
     },
     {
       "id": "import-1235",
       "name": "Golden Time",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         24
       ],
@@ -19061,14 +19040,14 @@
       "watchNext": false,
       "addedAt": "2023-09-26",
       "lastWatchedAt": "2025-06-19",
-      "completedAt": "2025-06-19",
+      "completedAt": null,
       "updatedAt": "2025-06-19"
     },
     {
       "id": "import-1236",
       "name": "Gurren Lagann",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         27
       ],
@@ -19077,14 +19056,14 @@
       "watchNext": false,
       "addedAt": "2023-09-26",
       "lastWatchedAt": "2025-11-03",
-      "completedAt": "2025-11-03",
+      "completedAt": null,
       "updatedAt": "2025-11-03"
     },
     {
       "id": "import-1237",
       "name": "Haibane Renmei",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13
       ],
@@ -19093,14 +19072,14 @@
       "watchNext": false,
       "addedAt": "2025-12-31",
       "lastWatchedAt": "2025-12-31",
-      "completedAt": "2025-12-31",
+      "completedAt": null,
       "updatedAt": "2025-12-31"
     },
     {
       "id": "import-1238",
       "name": "Hanasaku Iroha: Blossoms for Tomorrow",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         26
       ],
@@ -19109,14 +19088,14 @@
       "watchNext": false,
       "addedAt": "2026-04-29",
       "lastWatchedAt": "2026-04-29",
-      "completedAt": "2026-04-29",
+      "completedAt": null,
       "updatedAt": "2026-04-29"
     },
     {
       "id": "import-1239",
       "name": "Hawkeye (2021)",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         6
       ],
@@ -19125,14 +19104,14 @@
       "watchNext": false,
       "addedAt": "2022-10-28",
       "lastWatchedAt": "2022-10-28",
-      "completedAt": "2022-10-28",
+      "completedAt": null,
       "updatedAt": "2022-10-28"
     },
     {
       "id": "import-1240",
       "name": "Horimiya",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13
       ],
@@ -19141,14 +19120,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": "2022-09-26",
+      "completedAt": null,
       "updatedAt": "2022-09-26"
     },
     {
       "id": "import-1241",
       "name": "Horimiya: The Missing Pieces",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13
       ],
@@ -19157,14 +19136,14 @@
       "watchNext": false,
       "addedAt": "2023-09-26",
       "lastWatchedAt": "2023-09-26",
-      "completedAt": "2023-09-26",
+      "completedAt": null,
       "updatedAt": "2023-09-26"
     },
     {
       "id": "import-1242",
       "name": "Hyouka",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         22
       ],
@@ -19173,14 +19152,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": "2022-09-26",
-      "updatedAt": "2022-09-26"
+      "completedAt": null,
+      "updatedAt": "2026-06-22"
     },
     {
       "id": "import-1243",
       "name": "Kanon (2006)",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         24
       ],
@@ -19189,14 +19168,14 @@
       "watchNext": false,
       "addedAt": "2025-12-25",
       "lastWatchedAt": "2025-12-28",
-      "completedAt": "2025-12-28",
+      "completedAt": null,
       "updatedAt": "2025-12-28"
     },
     {
       "id": "import-1244",
       "name": "Kids on the Slope",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         12
       ],
@@ -19205,7 +19184,7 @@
       "watchNext": false,
       "addedAt": "2023-09-04",
       "lastWatchedAt": "2025-12-24",
-      "completedAt": "2025-12-24",
+      "completedAt": null,
       "updatedAt": "2025-12-24"
     },
     {
@@ -19228,7 +19207,7 @@
       "id": "import-1246",
       "name": "Kono Oto Tomare!: Sounds of Life",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         26
       ],
@@ -19237,14 +19216,14 @@
       "watchNext": false,
       "addedAt": "2023-09-26",
       "lastWatchedAt": "2026-05-14",
-      "completedAt": "2026-05-14",
+      "completedAt": null,
       "updatedAt": "2026-05-14"
     },
     {
       "id": "import-1247",
       "name": "Koombiyo - Ants",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         57
       ],
@@ -19253,14 +19232,14 @@
       "watchNext": false,
       "addedAt": "2026-05-20",
       "lastWatchedAt": "2026-05-20",
-      "completedAt": "2026-05-20",
+      "completedAt": null,
       "updatedAt": "2026-05-20"
     },
     {
       "id": "import-1248",
       "name": "Loki",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         6,
         6
@@ -19270,14 +19249,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2026-02-14",
-      "completedAt": "2026-02-14",
+      "completedAt": null,
       "updatedAt": "2026-02-14"
     },
     {
       "id": "import-1249",
       "name": "Love, Chunibyo & Other Delusions!",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13,
         12
@@ -19287,14 +19266,14 @@
       "watchNext": false,
       "addedAt": "2024-06-29",
       "lastWatchedAt": "2026-05-18",
-      "completedAt": "2026-05-18",
+      "completedAt": null,
       "updatedAt": "2026-05-18"
     },
     {
       "id": "import-1250",
       "name": "Lovely Complex",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         24
       ],
@@ -19303,14 +19282,14 @@
       "watchNext": false,
       "addedAt": "2026-04-21",
       "lastWatchedAt": "2026-06-14",
-      "completedAt": "2026-06-14",
+      "completedAt": null,
       "updatedAt": "2026-06-14"
     },
     {
       "id": "import-1251",
       "name": "Mare of Easttown",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         7
       ],
@@ -19319,14 +19298,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": "2022-09-26",
+      "completedAt": null,
       "updatedAt": "2022-09-26"
     },
     {
       "id": "import-1252",
       "name": "Money Heist",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         15,
         16,
@@ -19337,14 +19316,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": "2022-09-26",
+      "completedAt": null,
       "updatedAt": "2022-09-26"
     },
     {
       "id": "import-1253",
       "name": "Monster (2022)",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         10
       ],
@@ -19353,14 +19332,14 @@
       "watchNext": false,
       "addedAt": "2022-09-28",
       "lastWatchedAt": "2022-10-06",
-      "completedAt": "2022-10-06",
+      "completedAt": null,
       "updatedAt": "2022-10-06"
     },
     {
       "id": "import-1254",
       "name": "Moon Knight",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         6
       ],
@@ -19369,14 +19348,14 @@
       "watchNext": false,
       "addedAt": "2022-10-01",
       "lastWatchedAt": "2022-10-01",
-      "completedAt": "2022-10-01",
+      "completedAt": null,
       "updatedAt": "2022-10-01"
     },
     {
       "id": "import-1255",
       "name": "My Little Monster",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13
       ],
@@ -19385,14 +19364,14 @@
       "watchNext": false,
       "addedAt": "2023-04-30",
       "lastWatchedAt": "2025-10-19",
-      "completedAt": "2025-10-19",
+      "completedAt": null,
       "updatedAt": "2025-10-19"
     },
     {
       "id": "import-1256",
       "name": "My Teen Romantic Comedy SNAFU",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13,
         13,
@@ -19403,14 +19382,14 @@
       "watchNext": false,
       "addedAt": "2023-09-26",
       "lastWatchedAt": "2024-02-19",
-      "completedAt": "2024-02-19",
+      "completedAt": null,
       "updatedAt": "2024-02-19"
     },
     {
       "id": "import-1257",
       "name": "Naruto",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         35,
         48,
@@ -19423,14 +19402,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2023-07-24",
-      "completedAt": "2023-07-24",
+      "completedAt": null,
       "updatedAt": "2023-07-24"
     },
     {
       "id": "import-1258",
       "name": "Naruto Shippuden",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         32,
         21,
@@ -19460,14 +19439,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2023-10-04",
-      "completedAt": "2023-10-04",
+      "completedAt": null,
       "updatedAt": "2023-10-04"
     },
     {
       "id": "import-1259",
       "name": "Natsuyuki Rendezvous",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         11
       ],
@@ -19476,14 +19455,14 @@
       "watchNext": false,
       "addedAt": "2026-05-13",
       "lastWatchedAt": "2026-05-14",
-      "completedAt": "2026-05-14",
+      "completedAt": null,
       "updatedAt": "2026-05-14"
     },
     {
       "id": "import-1260",
       "name": "O Maidens in Your Savage Season",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         12
       ],
@@ -19492,14 +19471,14 @@
       "watchNext": false,
       "addedAt": "2026-06-06",
       "lastWatchedAt": "2026-06-10",
-      "completedAt": "2026-06-10",
+      "completedAt": null,
       "updatedAt": "2026-06-10"
     },
     {
       "id": "import-1261",
       "name": "Orange",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13
       ],
@@ -19508,14 +19487,14 @@
       "watchNext": false,
       "addedAt": "2022-10-28",
       "lastWatchedAt": "2022-10-28",
-      "completedAt": "2022-10-28",
+      "completedAt": null,
       "updatedAt": "2022-10-28"
     },
     {
       "id": "import-1262",
       "name": "Parasyte -the maxim-",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         24
       ],
@@ -19524,7 +19503,7 @@
       "watchNext": false,
       "addedAt": "2023-09-26",
       "lastWatchedAt": "2023-09-26",
-      "completedAt": "2023-09-26",
+      "completedAt": null,
       "updatedAt": "2023-09-26"
     },
     {
@@ -19552,7 +19531,7 @@
       "id": "import-1264",
       "name": "Plastic Memories",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13
       ],
@@ -19561,14 +19540,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": "2022-09-26",
+      "completedAt": null,
       "updatedAt": "2022-09-26"
     },
     {
       "id": "import-1265",
       "name": "Rainbow (2010)",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         26
       ],
@@ -19577,7 +19556,7 @@
       "watchNext": false,
       "addedAt": "2026-06-18",
       "lastWatchedAt": "2026-06-25",
-      "completedAt": "2026-06-25",
+      "completedAt": null,
       "updatedAt": "2026-06-25"
     },
     {
@@ -19601,7 +19580,7 @@
       "id": "import-1267",
       "name": "ReLIFE",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13
       ],
@@ -19610,14 +19589,14 @@
       "watchNext": false,
       "addedAt": "2023-09-26",
       "lastWatchedAt": "2025-04-15",
-      "completedAt": "2025-04-15",
+      "completedAt": null,
       "updatedAt": "2025-04-15"
     },
     {
       "id": "import-1268",
       "name": "Sahodaraya",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         38
       ],
@@ -19626,14 +19605,14 @@
       "watchNext": false,
       "addedAt": "2026-05-20",
       "lastWatchedAt": "2026-05-20",
-      "completedAt": "2026-05-20",
+      "completedAt": null,
       "updatedAt": "2026-05-20"
     },
     {
       "id": "import-1269",
       "name": "Samurai Champloo",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         26
       ],
@@ -19642,14 +19621,14 @@
       "watchNext": false,
       "addedAt": "2023-09-26",
       "lastWatchedAt": "2023-10-26",
-      "completedAt": "2023-10-26",
+      "completedAt": null,
       "updatedAt": "2023-10-26"
     },
     {
       "id": "import-1270",
       "name": "See",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         8,
         8,
@@ -19660,14 +19639,14 @@
       "watchNext": false,
       "addedAt": "2023-01-12",
       "lastWatchedAt": "2023-04-30",
-      "completedAt": "2023-04-30",
+      "completedAt": null,
       "updatedAt": "2023-04-30"
     },
     {
       "id": "import-1271",
       "name": "Silver Spoon",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         11,
         11
@@ -19677,14 +19656,14 @@
       "watchNext": false,
       "addedAt": "2026-06-11",
       "lastWatchedAt": "2026-06-17",
-      "completedAt": "2026-06-17",
+      "completedAt": null,
       "updatedAt": "2026-06-17"
     },
     {
       "id": "import-1272",
       "name": "Steins;Gate",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         24
       ],
@@ -19693,14 +19672,14 @@
       "watchNext": false,
       "addedAt": "2023-12-10",
       "lastWatchedAt": "2024-11-18",
-      "completedAt": "2024-11-18",
+      "completedAt": null,
       "updatedAt": "2024-11-18"
     },
     {
       "id": "import-1273",
       "name": "Steins;Gate 0",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         23
       ],
@@ -19709,14 +19688,14 @@
       "watchNext": false,
       "addedAt": "2024-11-18",
       "lastWatchedAt": "2024-12-09",
-      "completedAt": "2024-12-09",
+      "completedAt": null,
       "updatedAt": "2024-12-09"
     },
     {
       "id": "import-1274",
       "name": "Stranger Things",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         8,
         9,
@@ -19729,14 +19708,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2026-02-08",
-      "completedAt": "2026-02-08",
+      "completedAt": null,
       "updatedAt": "2026-02-08"
     },
     {
       "id": "import-1275",
       "name": "Tada Never Falls in Love",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13
       ],
@@ -19745,14 +19724,14 @@
       "watchNext": false,
       "addedAt": "2022-10-06",
       "lastWatchedAt": "2022-10-06",
-      "completedAt": "2022-10-06",
+      "completedAt": null,
       "updatedAt": "2022-10-06"
     },
     {
       "id": "import-1276",
       "name": "Tamako Market",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         12
       ],
@@ -19761,14 +19740,14 @@
       "watchNext": false,
       "addedAt": "2026-06-07",
       "lastWatchedAt": "2026-06-07",
-      "completedAt": "2026-06-07",
+      "completedAt": null,
       "updatedAt": "2026-06-07"
     },
     {
       "id": "import-1277",
       "name": "Teen Titans",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13,
         13,
@@ -19781,14 +19760,14 @@
       "watchNext": false,
       "addedAt": "2022-10-06",
       "lastWatchedAt": "2022-10-06",
-      "completedAt": "2022-10-06",
+      "completedAt": null,
       "updatedAt": "2022-10-06"
     },
     {
       "id": "import-1278",
       "name": "Terror in Resonance",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         11
       ],
@@ -19797,14 +19776,14 @@
       "watchNext": false,
       "addedAt": "2023-09-26",
       "lastWatchedAt": "2024-11-14",
-      "completedAt": "2024-11-14",
+      "completedAt": null,
       "updatedAt": "2024-11-14"
     },
     {
       "id": "import-1279",
       "name": "The Batman",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13,
         13,
@@ -19817,14 +19796,14 @@
       "watchNext": false,
       "addedAt": "2022-10-06",
       "lastWatchedAt": "2022-10-06",
-      "completedAt": "2022-10-06",
+      "completedAt": null,
       "updatedAt": "2022-10-06"
     },
     {
       "id": "import-1280",
       "name": "The Falcon and The Winter Soldier",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         6
       ],
@@ -19833,14 +19812,14 @@
       "watchNext": false,
       "addedAt": "2022-10-01",
       "lastWatchedAt": "2022-10-01",
-      "completedAt": "2022-10-01",
+      "completedAt": null,
       "updatedAt": "2022-10-01"
     },
     {
       "id": "import-1281",
       "name": "The Flash (2014)",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         23,
         23,
@@ -19857,14 +19836,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2023-06-15",
-      "completedAt": "2023-06-15",
+      "completedAt": null,
       "updatedAt": "2023-06-15"
     },
     {
       "id": "import-1282",
       "name": "The Haunting",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         10,
         9
@@ -19874,14 +19853,14 @@
       "watchNext": false,
       "addedAt": "2022-10-01",
       "lastWatchedAt": "2022-10-01",
-      "completedAt": "2022-10-01",
+      "completedAt": null,
       "updatedAt": "2022-10-01"
     },
     {
       "id": "import-1283",
       "name": "The Queen's Gambit",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         7
       ],
@@ -19890,7 +19869,7 @@
       "watchNext": false,
       "addedAt": "2022-10-13",
       "lastWatchedAt": "2022-10-13",
-      "completedAt": "2022-10-13",
+      "completedAt": null,
       "updatedAt": "2022-10-13"
     },
     {
@@ -19916,7 +19895,7 @@
       "id": "import-1285",
       "name": "Tokyo Magnitude 8.0",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         11
       ],
@@ -19925,14 +19904,14 @@
       "watchNext": false,
       "addedAt": "2023-09-26",
       "lastWatchedAt": "2026-06-11",
-      "completedAt": "2026-06-11",
+      "completedAt": null,
       "updatedAt": "2026-06-11"
     },
     {
       "id": "import-1286",
       "name": "Toradora!",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         25
       ],
@@ -19941,14 +19920,14 @@
       "watchNext": false,
       "addedAt": "2023-09-26",
       "lastWatchedAt": "2025-10-18",
-      "completedAt": "2025-10-18",
+      "completedAt": null,
       "updatedAt": "2025-10-18"
     },
     {
       "id": "import-1287",
       "name": "True Tears",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13
       ],
@@ -19957,14 +19936,14 @@
       "watchNext": false,
       "addedAt": "2026-04-19",
       "lastWatchedAt": "2026-05-07",
-      "completedAt": "2026-05-07",
+      "completedAt": null,
       "updatedAt": "2026-05-07"
     },
     {
       "id": "import-1288",
       "name": "Tsukigakirei",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         12
       ],
@@ -19973,14 +19952,14 @@
       "watchNext": false,
       "addedAt": "2023-09-26",
       "lastWatchedAt": "2026-04-16",
-      "completedAt": "2026-04-16",
+      "completedAt": null,
       "updatedAt": "2026-04-16"
     },
     {
       "id": "import-1289",
       "name": "Tsuritama",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         12
       ],
@@ -19989,14 +19968,14 @@
       "watchNext": false,
       "addedAt": "2026-04-29",
       "lastWatchedAt": "2026-05-05",
-      "completedAt": "2026-05-05",
+      "completedAt": null,
       "updatedAt": "2026-05-05"
     },
     {
       "id": "import-1290",
       "name": "Violet Evergarden",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         13
       ],
@@ -20005,14 +19984,14 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": "2022-09-26",
+      "completedAt": null,
       "updatedAt": "2022-09-26"
     },
     {
       "id": "import-1291",
       "name": "Waiting in the Summer",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         12
       ],
@@ -20021,14 +20000,14 @@
       "watchNext": false,
       "addedAt": "2025-12-31",
       "lastWatchedAt": "2026-04-21",
-      "completedAt": "2026-04-21",
+      "completedAt": null,
       "updatedAt": "2026-04-21"
     },
     {
       "id": "import-1292",
       "name": "Welcome to the N.H.K.",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         24
       ],
@@ -20037,14 +20016,14 @@
       "watchNext": false,
       "addedAt": "2026-04-21",
       "lastWatchedAt": "2026-04-23",
-      "completedAt": "2026-04-23",
+      "completedAt": null,
       "updatedAt": "2026-04-23"
     },
     {
       "id": "import-1293",
       "name": "When They See Us",
       "category": "Series",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         4
       ],
@@ -20053,7 +20032,7 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": "2022-09-26",
+      "completedAt": null,
       "updatedAt": "2022-09-26"
     },
     {
@@ -20095,7 +20074,7 @@
       "id": "import-1296",
       "name": "Your Lie in April",
       "category": "Anime",
-      "status": "Watched",
+      "status": "Watching",
       "seasonEpisodeCounts": [
         22
       ],
@@ -20104,7 +20083,7 @@
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": "2022-09-26",
+      "completedAt": null,
       "updatedAt": "2022-09-26"
     }
   ]
