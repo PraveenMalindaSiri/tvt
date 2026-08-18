@@ -49,7 +49,7 @@ class StatsTab extends StatelessWidget {
                 crossAxisCount: columns,
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 10,
-                mainAxisExtent: 96,
+                mainAxisExtent: 102,
               ),
               itemBuilder: (_, int index) => cards[index],
             );

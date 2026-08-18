@@ -19212,16 +19212,16 @@
       "id": "import-1245",
       "name": "Kokoro Connect",
       "category": "Anime",
-      "status": "Watching",
+      "status": "Watched",
       "seasonEpisodeCounts": [
         17
       ],
       "currentSeason": 1,
-      "currentEpisode": 13,
+      "currentEpisode": 17,
       "watchNext": false,
       "addedAt": "2022-09-26",
       "lastWatchedAt": "2022-09-26",
-      "completedAt": null,
+      "completedAt": "2022-09-26",
       "updatedAt": "2022-09-26"
     },
     {
